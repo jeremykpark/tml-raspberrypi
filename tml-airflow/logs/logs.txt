@@ -12212,3 +12212,4 @@ origin	https://<personal access token hidden>@github.com/jeremykpark/tml-raspber
 [INFO 2025-03-14_19:34:19] Deleting topic cisco-network-privategpt in tml_system_step_2_kafka_createtopic_dag-cybersecuritywithprivategpt-534a.py
 [INFO 2025-03-14_19:34:30] Visualization DAG in tml_system_step_7_kafka_visualization_dag-cybersecuritywithprivategpt-534a.py
 [INFO 2025-03-14_19:34:41] Docker DAG in tml_system_step_8_deploy_solution_to_docker_dag-cybersecuritywithprivategpt-534a.py
+[ERROR 2025-03-14_19:34:54] Deploying to Docker in tml_system_step_8_deploy_solution_to_docker_dag-cybersecuritywithprivategpt-534a.py: [Errno 2] No such file or directory: '/tml-raspberrypi/tml-airflow/dags/tml-solutions/_mysolution_/docker_run_stop-_mysolution_.py'
