@@ -12279,3 +12279,4 @@ origin	https://<personal access token hidden>@github.com/jeremykpark/tml-raspber
 [INFO 2025-04-01_23:35:26] Visualization DAG in tml_system_step_7_kafka_visualization_dag-cybersecuritywithprivategpt-534a.py
 [INFO 2025-04-01_23:35:36] PrivateGPT Step 9 DAG in tml_system_step_9_privategpt_qdrant_dag-cybersecuritywithprivategpt-534a.py
 [INFO 2025-04-01_23:35:40] Docker DAG in tml_system_step_8_deploy_solution_to_docker_dag-cybersecuritywithprivategpt-534a.py
+[INFO 2025-04-01_23:37:36] {'name': ['Project with slug "cybersecuritywithprivategpt-534a-ai-mqtt" already exists.']}
