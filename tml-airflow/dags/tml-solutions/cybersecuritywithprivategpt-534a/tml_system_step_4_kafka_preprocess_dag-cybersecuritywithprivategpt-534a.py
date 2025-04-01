@@ -45,7 +45,7 @@ default_args = {
   identifiers=inboundpackets,outboundpackets,pingStatus~\
   datetime=lastUpdated~\
   msgid=~\
-  latlong=' # <<< **** Specify your json criteria. Here is an example of a multiline json --  refer to https://tml-readthedocs.readthedocs.io/en/latest/
+  latlong=', # <<< **** Specify your json criteria. Here is an example of a multiline json --  refer to https://tml-readthedocs.readthedocs.io/en/latest/
 }
 
 ######################################## DO NOT MODIFY BELOW #############################################
