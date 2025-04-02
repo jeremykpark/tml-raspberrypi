@@ -36,14 +36,14 @@ default_args = {
   'tmlfilepath' : '', # leave blank
   'usemysql' : '1', # do not modify
   'streamstojoin' : '', # leave blank
-  'identifier' :  'Monitor retail outgoing traffic and detect potential data leaks', # <<< ** Change as needed
+  'identifier' :  'Detect potential cyber attacks and monitor network', # <<< ** Change as needed
   'preprocesstypes' : 'min,max,trend,anomprob,variance,avg', # <<< **** MAIN PREPROCESS TYPES CHNAGE AS NEEDED refer to https://tml-readthedocs.readthedocs.io/en/latest/
   'pathtotmlattrs' : 'oem=n/a,lat=n/a,long=n/a,location=n/a,identifier=n/a', # Change as needed     
-  'jsoncriteria' : 'uid=hostName,filter:allrecords~\
-subtopics=hostName,hostName,hostName~\
-values=inboundpackets,outboundpackets,pingStatus~\
-identifiers=inboundpackets,outboundpackets,pingStatus~\
-datetime=lastUpdated~\
+  'jsoncriteria' : 'uid=Hostname,filter:allrecords~\
+subtopics=Hostname,Hostname,Hostname~\
+values=Dst IP,Dst port,Protocol,Log subtype~\
+identifiers=Dst IP,Dst port,Protocol,Log subtype~\
+datetime=Time~\
 msgid=~\
 latlong=', # <<< **** Specify your json criteria. Here is an example of a multiline json --  refer to https://tml-readthedocs.readthedocs.io/en/latest/
 }
