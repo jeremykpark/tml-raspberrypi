@@ -41,7 +41,7 @@ default_args = {
  'prompt': 'Do any of the values of the inbound or outbound packets look abnormal?', # Enter your prompt here
  'context' : 'These data are anomaly probabilities of suspicious data traffic. A high probability of over 0.80 is likely suspicious.', # what is this data about? Provide context to PrivateGPT
  'jsonkeytogather' : 'hyperprediction', # enter key you want to gather data from to analyse with PrivateGpt i.e. Identifier or hyperprediction
- 'keyattribute' : 'inboundpackets,outboundpackets', # change as needed  
+ 'keyattribute' : 'Dst IP,Dst port', # change as needed  
  'keyprocesstype' : 'anomprob',  # change as needed
  'hyperbatch' : '0', # Set to 1 if you want to batch all of the hyperpredictions and sent to chatgpt, set to 0, if you want to send it one by one   
  'vectordbcollectionname' : 'tml-llm-model-v2', # change as needed
@@ -52,7 +52,7 @@ default_args = {
                    # separate multiple folders with a comma
  'docfolderingestinterval': '900', # how often you want TML to RE-LOAD the files in docfolder - enter the number of SECONDS
  'useidentifierinprompt': '1', # If 1, this uses the identifier in the TML json output and appends it to prompt, If 0, it uses the prompt only    
- 'searchterms': '192.168.--identifier--,authentication failure',
+ 'searchterms': '172.16.--identifier--,authentication failure',
  'streamall': '1',
  'temperature' : '0.1', # This value ranges between 0 and 1, it controls how conservative LLM model will be, if 0 very very, if 1 it will hallucinate
  'vectorsearchtype' : 'Manhattan', # this is for the Qdrant Search algorithm.  it can be: Cosine, Euclidean, Dot, or Manhattan 
