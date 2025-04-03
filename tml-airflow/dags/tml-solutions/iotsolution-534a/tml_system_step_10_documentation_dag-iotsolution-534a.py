@@ -80,6 +80,7 @@ def setupurls(projectname,producetype,sname):
     stepurl2="https://github.com/{}/{}/tree/main/tml-airflow/dags/tml-solutions/{}/tml_system_step_2_kafka_createtopic_dag-{}.py".format(os.environ['GITUSERNAME'],tsslogging.getrepo(),projectname,projectname)
     stepurl3="https://github.com/{}/{}/tree/main/tml-airflow/dags/tml-solutions/{}/tml_read_{}_step_3_kafka_producetotopic_dag-{}.py".format(os.environ['GITUSERNAME'],tsslogging.getrepo(),projectname,ptype,projectname)
     stepurl4="https://github.com/{}/{}/tree/main/tml-airflow/dags/tml-solutions/{}/tml_system_step_4_kafka_preprocess_dag-{}.py".format(os.environ['GITUSERNAME'],tsslogging.getrepo(),projectname,projectname)
+    stepurl4a="https://github.com/{}/{}/tree/main/tml-airflow/dags/tml-solutions/{}/tml_system_step_4a_kafka_preprocess_dag-{}.py".format(os.environ['GITUSERNAME'],tsslogging.getrepo(),projectname,projectname)
     stepurl4b="https://github.com/{}/{}/tree/main/tml-airflow/dags/tml-solutions/{}/tml_system_step_4b_kafka_preprocess_dag-{}.py".format(os.environ['GITUSERNAME'],tsslogging.getrepo(),projectname,projectname)
     stepurl4c="https://github.com/{}/{}/tree/main/tml-airflow/dags/tml-solutions/{}/tml_system_step_4c_kafka_preprocess_dag-{}.py".format(os.environ['GITUSERNAME'],tsslogging.getrepo(),projectname,projectname)
     stepurl5="https://github.com/{}/{}/tree/main/tml-airflow/dags/tml-solutions/{}/tml_system_step_5_kafka_machine_learning_dag-{}.py".format(os.environ['GITUSERNAME'],tsslogging.getrepo(),projectname,projectname)
@@ -95,6 +96,7 @@ def setupurls(projectname,producetype,sname):
     doparse("/{}/docs/source/details.rst".format(sname), ["--step2url--;{}".format(stepurl2)])
     doparse("/{}/docs/source/details.rst".format(sname), ["--step3url--;{}".format(stepurl3)])
     doparse("/{}/docs/source/details.rst".format(sname), ["--step4url--;{}".format(stepurl4)])
+    doparse("/{}/docs/source/details.rst".format(sname), ["--step4aurl--;{}".format(stepurl4a)])
     doparse("/{}/docs/source/details.rst".format(sname), ["--step4burl--;{}".format(stepurl4b)])
     doparse("/{}/docs/source/details.rst".format(sname), ["--step4curl--;{}".format(stepurl4c)])
     doparse("/{}/docs/source/details.rst".format(sname), ["--step5url--;{}".format(stepurl5)])
@@ -155,11 +157,26 @@ def generatedoc(**context):
     step9streamall=''
     step9temperature=''
     step9vectorsearchtype=''
+    step9pcontextwindowsize=''
+    step9pgptcontainername=''
+    step9pgpthost=''
+    step9pgptport=''
+    step9vectordimension=''
+ 
     step4crawdatatopic=''
     step4csearchterms=''
     step4crememberpastwindows=''
-    step4cpatternscorethreshold=''
+    step4cpatternwindowthreshold=''
     step4crtmsstream=''
+    step4crtmsscorethreshold=''
+    step4cattackscorethreshold=''
+    step4cpatternscorethreshold=''
+    step4clocalsearchtermfolder=''
+    step4clocalsearchtermfolderinterval=''
+    step4crtmsfoldername=''
+    step3localfileinputfile=''
+    step3localfiledocfolder=''
+    step4crtmsmaxwindows=''
     rtmsoutputurl=""
     mloutputurl=""
  
@@ -188,7 +205,6 @@ def generatedoc(**context):
     mqttusername = context['ti'].xcom_pull(task_ids='step_1_solution_task_getparams',key="{}_MQTTUSERNAME".format(sname))
     kafkacloudusername = context['ti'].xcom_pull(task_ids='step_1_solution_task_getparams',key="{}_KAFKACLOUDUSERNAME".format(sname))
     projectname = context['ti'].xcom_pull(task_ids='step_1_solution_task_getparams',key="{}_projectname".format(sd))
-    
     externalport = context['ti'].xcom_pull(task_ids='step_1_solution_task_getparams',key="{}_EXTERNALPORT".format(sname))
     solutionexternalport = context['ti'].xcom_pull(task_ids='step_1_solution_task_getparams',key="{}_SOLUTIONEXTERNALPORT".format(sname))
     
@@ -283,7 +299,10 @@ def generatedoc(**context):
     setupurls(projectname,PRODUCETYPE,sname)
 
     if PRODUCETYPE=='LOCALFILE':
+      inputfile = context['ti'].xcom_pull(task_ids='step_3_solution_task_producetotopic',key="{}_inputfile".format(sname))
+      step3localfileinputfile=inputfile
       docfolderprocess = context['ti'].xcom_pull(task_ids='step_3_solution_task_producetotopic',key="{}_docfolder".format(sname))
+      step3localfiledocfolder=docfolderprocess
       doctopic = context['ti'].xcom_pull(task_ids='step_3_solution_task_producetotopic',key="{}_doctopic".format(sname))
       chunks = context['ti'].xcom_pull(task_ids='step_3_solution_task_producetotopic',key="{}_chunks".format(sname))
       docingestinterval = context['ti'].xcom_pull(task_ids='step_3_solution_task_producetotopic',key="{}_docingestinterval".format(sname))
@@ -291,6 +310,7 @@ def generatedoc(**context):
       doparse("/{}/docs/source/details.rst".format(sname), ["--doctopic--;{}".format(doctopic)])
       doparse("/{}/docs/source/details.rst".format(sname), ["--chunks--;{}".format(chunks[1:])])
       doparse("/{}/docs/source/details.rst".format(sname), ["--docingestinterval--;{}".format(docingestinterval[1:])])
+      doparse("/{}/docs/source/details.rst".format(sname), ["--inputfile--;{}".format(inputfile)])
      
     subprocess.call(["sed", "-i", "-e",  "s/--PRODUCETYPE--/{}/g".format(PRODUCETYPE), "/{}/docs/source/details.rst".format(sname)])
     subprocess.call(["sed", "-i", "-e",  "s/--TOPIC--/{}/g".format(TOPIC), "/{}/docs/source/details.rst".format(sname)])
@@ -352,6 +372,40 @@ def generatedoc(**context):
         subprocess.call(["sed", "-i", "-e",  "s/--jsoncriteria--/{}/g".format(jsoncriteria), "/{}/docs/source/details.rst".format(sname)])
         subprocess.call(["sed", "-i", "-e",  "s/--maxrows--/{}/g".format(maxrows4[1:]), "/{}/docs/source/details.rst".format(sname)])
 
+    raw_data_topic = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_raw_data_topic".format(sname))
+    preprocess_data_topic = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_preprocess_data_topic".format(sname))    
+    preprocessconditions = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_preprocessconditions".format(sname))
+    delay = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_delay".format(sname))
+    array = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_array".format(sname))
+    saveasarray = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_saveasarray".format(sname))
+    topicid = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_topicid".format(sname))
+    rawdataoutput = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_rawdataoutput".format(sname))
+    asynctimeout = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_asynctimeout".format(sname))
+    timedelay = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_timedelay".format(sname))
+    usemysql = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_usemysql".format(sname))
+    preprocesstypes = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_preprocesstypes".format(sname))
+    pathtotmlattrs = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_pathtotmlattrs".format(sname))
+    identifier = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_identifier".format(sname))
+    jsoncriteria = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_jsoncriteria".format(sname))
+    maxrows4 = context['ti'].xcom_pull(task_ids='step_4a_solution_task_preprocess',key="{}_maxrows".format(sname))
+
+    if preprocess_data_topic:
+        subprocess.call(["sed", "-i", "-e",  "s/--raw_data_topic1--/{}/g".format(raw_data_topic), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--preprocess_data_topic1--/{}/g".format(preprocess_data_topic), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--preprocessconditions1--/{}/g".format(preprocessconditions), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--delay1--/{}/g".format(delay[1:]), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--array1--/{}/g".format(array[1:]), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--saveasarray1--/{}/g".format(saveasarray[1:]), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--topicid1--/{}/g".format(topicid[1:]), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--rawdataoutput1--/{}/g".format(rawdataoutput[1:]), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--asynctimeout1--/{}/g".format(asynctimeout[1:]), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--timedelay1--/{}/g".format(timedelay[1:]), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--preprocesstypes1--/{}/g".format(preprocesstypes), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--pathtotmlattrs1--/{}/g".format(pathtotmlattrs), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--identifier1--/{}/g".format(identifier), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--jsoncriteria1--/{}/g".format(jsoncriteria), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--maxrows1--/{}/g".format(maxrows4[1:]), "/{}/docs/source/details.rst".format(sname)])
+
     raw_data_topic = context['ti'].xcom_pull(task_ids='step_4b_solution_task_preprocess',key="{}_raw_data_topic".format(sname))
     preprocess_data_topic = context['ti'].xcom_pull(task_ids='step_4b_solution_task_preprocess',key="{}_preprocess_data_topic".format(sname))    
     preprocessconditions = context['ti'].xcom_pull(task_ids='step_4b_solution_task_preprocess',key="{}_preprocessconditions".format(sname))
@@ -400,10 +454,33 @@ def generatedoc(**context):
     searchterms = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_searchterms".format(sname))
     rememberpastwindows = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_rememberpastwindows".format(sname))
     identifier = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_identifier".format(sname))
-    patternscorethreshold = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_patternscorethreshold".format(sname))
+    patternwindowthreshold = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_patternwindowthreshold".format(sname))
     maxrows4c = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_maxrows".format(sname))
     rtmsstream = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_rtmsstream".format(sname))
+    rtmsscorethresholdtopic = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_rtmsscorethresholdtopic".format(sname))
+    attackscorethresholdtopic = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_attackscorethresholdtopic".format(sname))
+    patternscorethresholdtopic = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_patternscorethresholdtopic".format(sname))
+    rtmsscorethreshold = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_rtmsscorethreshold".format(sname))
+    attackscorethreshold = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_attackscorethreshold".format(sname))
+    patternscorethreshold = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_patternscorethreshold".format(sname))
+    rtmsmaxwindows = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_rtmsmaxwindows".format(sname))
+    if rtmsmaxwindows:
+      step4crtmsmaxwindows=rtmsmaxwindows
+      subprocess.call(["sed", "-i", "-e",  "s/--rtmsmaxwindows--/{}/g".format(rtmsmaxwindows[1:]), "/{}/docs/source/details.rst".format(sname)])
+
+    localsearchtermfolder = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_localsearchtermfolder".format(sname))
+    localsearchtermfolderinterval = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_localsearchtermfolderinterval".format(sname))
+    rtmsfoldername = context['ti'].xcom_pull(task_ids='step_4c_solution_task_preprocess',key="{}_rtmsfoldername".format(sname))
+
     if searchterms:
+        doparse("/{}/docs/source/details.rst".format(sname), ["--rtmsscorethresholdtopic--;{}".format(rtmsscorethresholdtopic)])
+        doparse("/{}/docs/source/details.rst".format(sname), ["--attackscorethresholdtopic--;{}".format(attackscorethresholdtopic)])
+        doparse("/{}/docs/source/details.rst".format(sname), ["--patternscorethresholdtopic--;{}".format(patternscorethresholdtopic)])
+        doparse("/{}/docs/source/details.rst".format(sname), ["--rtmsfoldername--;{}".format(rtmsfoldername)])
+
+        doparse("/{}/docs/source/details.rst".format(sname), ["--rtmsscorethreshold--;{}".format(rtmsscorethreshold[1:])])
+        doparse("/{}/docs/source/details.rst".format(sname), ["--attackscorethreshold--;{}".format(attackscorethreshold[1:])])
+        doparse("/{}/docs/source/details.rst".format(sname), ["--patternscorethreshold--;{}".format(patternscorethreshold[1:])])
         subprocess.call(["sed", "-i", "-e",  "s/--raw_data_topic3--/{}/g".format(raw_data_topic), "/{}/docs/source/details.rst".format(sname)])
         subprocess.call(["sed", "-i", "-e",  "s/--preprocess_data_topic3--/{}/g".format(preprocess_data_topic), "/{}/docs/source/details.rst".format(sname)])
         subprocess.call(["sed", "-i", "-e",  "s/--rtmsstream--/{}/g".format(rtmsstream), "/{}/docs/source/details.rst".format(sname)])
@@ -415,19 +492,28 @@ def generatedoc(**context):
         subprocess.call(["sed", "-i", "-e",  "s/--asynctimeout3--/{}/g".format(asynctimeout[1:]), "/{}/docs/source/details.rst".format(sname)])
         subprocess.call(["sed", "-i", "-e",  "s/--timedelay3--/{}/g".format(timedelay[1:]), "/{}/docs/source/details.rst".format(sname)])
         subprocess.call(["sed", "-i", "-e",  "s/--rememberpastwindows--/{}/g".format(rememberpastwindows[1:]), "/{}/docs/source/details.rst".format(sname)])
-        subprocess.call(["sed", "-i", "-e",  "s/--patternscorethreshold--/{}/g".format(patternscorethreshold[1:]), "/{}/docs/source/details.rst".format(sname)])
+        subprocess.call(["sed", "-i", "-e",  "s/--patternwindowthreshold--/{}/g".format(patternwindowthreshold[1:]), "/{}/docs/source/details.rst".format(sname)])
         subprocess.call(["sed", "-i", "-e",  "s/--identifier3--/{}/g".format(identifier), "/{}/docs/source/details.rst".format(sname)])
         subprocess.call(["sed", "-i", "-e",  "s/--maxrows3--/{}/g".format(maxrows4c[1:]), "/{}/docs/source/details.rst".format(sname)])
         doparse("/{}/docs/source/details.rst".format(sname), ["--rtmssearchterms--;{}".format(searchterms)])
-        rtmsoutputurl="https:\/\/github.com/{}/{}/tree/main/tml-airflow/dags/tml-solutions/{}/rtms".format(os.environ["GITUSERNAME"], tsslogging.getrepo(),projectname)
+        rtmsoutputurl="https:\/\/github.com/{}/{}/tree/main/tml-airflow/dags/tml-solutions/{}/{}".format(os.environ["GITUSERNAME"], tsslogging.getrepo(),projectname,rtmsfoldername)
         doparse("/{}/docs/source/details.rst".format(sname), ["--rtmsoutputurl--;{}".format(rtmsoutputurl)])
+        doparse("/{}/docs/source/details.rst".format(sname), ["--localsearchtermfolder--;{}".format(localsearchtermfolder)])
+        doparse("/{}/docs/source/details.rst".format(sname), ["--localsearchtermfolderinterval--;{}".format(localsearchtermfolderinterval[1:])])
+        doparse("/{}/docs/source/details.rst".format(sname), ["--rtmsfoldername--;{}".format(rtmsfoldername)])
 
         step4crawdatatopic=raw_data_topic
         step4csearchterms=searchterms
         step4crememberpastwindows=rememberpastwindows
-        step4cpatternscorethreshold=patternscorethreshold
+        step4cpatternwindowthreshold=patternwindowthreshold
         step4crtmsstream=rtmsstream
-
+        step4crtmsscorethreshold=rtmsscorethreshold
+        step4cattackscorethreshold=attackscorethreshold
+        step4cpatternscorethreshold=patternscorethreshold
+        step4clocalsearchtermfolder=localsearchtermfolder
+        step4clocalsearchtermfolderinterval=localsearchtermfolderinterval
+        step4crtmsfoldername=rtmsfoldername
+ 
     preprocess_data_topic = context['ti'].xcom_pull(task_ids='step_5_solution_task_ml',key="{}_preprocess_data_topic".format(sname))
     ml_data_topic = context['ti'].xcom_pull(task_ids='step_5_solution_task_ml',key="{}_ml_data_topic".format(sname))
     modelruns = context['ti'].xcom_pull(task_ids='step_5_solution_task_ml',key="{}_modelruns".format(sname))
@@ -565,12 +651,28 @@ def generatedoc(**context):
     pconsumefrom = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_consumefrom".format(sname))
     pgpt_data_topic = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_pgpt_data_topic".format(sname))
     pgptcontainername = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_pgptcontainername".format(sname))
+    step9pgptcontainername=pgptcontainername
     poffset = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_offset".format(sname))
     prollbackoffset = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_rollbackoffset".format(sname))
     ptopicid = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_topicid".format(sname))
     penabletls = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_enabletls".format(sname))
     ppartition = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_partition".format(sname))
     pprompt = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_prompt".format(sname))
+    pcontextwindowsize = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_contextwindowsize".format(sname))
+    pvectordimension = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_vectordimension".format(sname))
+    pmitrejson = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_mitrejson".format(sname))
+
+    if pmitrejson:
+       doparse("/{}/docs/source/details.rst".format(sname), ["--mitrejson--;{}".format(pmitrejson)])
+
+    if pcontextwindowsize:
+       step9pcontextwindowsize=pcontextwindowsize
+       doparse("/{}/docs/source/details.rst".format(sname), ["--contextwindowsize--;{}".format(pcontextwindowsize[1:])])
+
+    if pvectordimension:
+       step9vectordimension=pvectordimension
+       doparse("/{}/docs/source/details.rst".format(sname), ["--vectordimension--;{}".format(pvectordimension[1:])])
+     
     if pprompt:
       step9prompt=pprompt
 
@@ -606,7 +708,13 @@ def generatedoc(**context):
     if pcollection:
       step9vectordbcollectionname=pcollection     
     pgpthost = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_pgpthost".format(sname))
+    if pgpthost:
+      step9pgpthost=pgpthost
+
     pgptport = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_pgptport".format(sname))
+    if pgptport:
+      step9pgptport=pgptport
+ 
     pprocesstype = context['ti'].xcom_pull(task_ids='step_9_solution_task_ai',key="{}_keyprocesstype".format(sname))
     if pprocesstype:
       step9keyprocesstype=pprocesstype 
@@ -630,68 +738,89 @@ def generatedoc(**context):
     if pvectorsearchtype:
       step9vectorsearchtype=pvectorsearchtype
       doparse("/{}/docs/source/details.rst".format(sname), ["--vectorsearchtype--;{}".format(pvectorsearchtype)])
+
+    ebuf=""
+    if 'dockerenv' in default_args:
+     if default_args['dockerenv'] != '':
+       buf=default_args['dockerenv']
+       darr = buf.split("***")
+       ebuf="\n"
+       for d in darr:          
+          v=d.split("=")
+          if len(v)>1:
+            ebuf = ebuf + '          --env ' + v[0].strip() + '=\"' + v[1].strip() + '\" \\ \n'
+          else: 
+            ebuf = ebuf + '          --env ' + v[0].strip() + '=' + ' \\ \n'
+       ebuf = ebuf[:-1]
+     if default_args['dockerinstructions'] != '':
+       doparse("/{}/docs/source/operating.rst".format(sname), ["--dockerinstructions--;{}".format(default_args['dockerinstructions'])])     
+     else:
+       doparse("/{}/docs/source/operating.rst".format(sname), ["--dockerinstructions--;{}".format("Please ask the developer of this solution.")])     
      
     if len(CLIENTPORT) > 1:
       doparse("/{}/docs/source/operating.rst".format(sname), ["--clientport--;{}".format(TMLCLIENTPORT[1:])])
-      dockerrun = """docker run -d -p {}:{} -p {}:{} -p {}:{} -p {}:{} \\
+      dockerrun = """docker run -d --net=host -p {}:{} -p {}:{} -p {}:{} -p {}:{} \\
           --env TSS=0 \\
           --env SOLUTIONNAME={} \\
           --env SOLUTIONDAG={} \\
-          --env GITUSERNAME={} \\
-          --env GITREPOURL={} \\
+          --env GITUSERNAME=<Enter Github Username> \\
+          --env GITPASSWORD='<Enter Github Password>' \\          
+          --env GITREPOURL=<Enter Github Repo URL> \\
           --env SOLUTIONEXTERNALPORT={} \\
           -v /var/run/docker.sock:/var/run/docker.sock:z  \\
           -v /your_localmachine/foldername:/rawdata:z \\
           --env CHIP={} \\
           --env SOLUTIONAIRFLOWPORT={}  \\
           --env SOLUTIONVIPERVIZPORT={} \\
-          --env DOCKERUSERNAME='{}' \\
+          --env DOCKERUSERNAME='' \\
           --env CLIENTPORT={}  \\
           --env EXTERNALPORT={} \\
-          --env KAFKACLOUDUSERNAME='{}' \\
+          --env KAFKABROKERHOST=127.0.0.1:9092 \\          
+          --env KAFKACLOUDUSERNAME='<Enter API key>' \\
+          --env KAFKACLOUDPASSWORD='<Enter API secret>' \\          
+          --env SASLMECHANISM=PLAIN \\          
           --env VIPERVIZPORT={} \\
-          --env MQTTUSERNAME='{}' \\
+          --env MQTTUSERNAME='' \\
+          --env MQTTPASSWORD='' \\          
           --env AIRFLOWPORT={}  \\
-          --env GITPASSWORD='<Enter Github Password>' \\
-          --env KAFKACLOUDPASSWORD='<Enter API secret>' \\
-          --env MQTTPASSWORD='<Enter mqtt password>' \\
-          --env READTHEDOCS='<Enter Readthedocs token>' \\
+          --env READTHEDOCS='<Enter Readthedocs token>' \\{} 
           {}""".format(solutionexternalport[1:],solutionexternalport[1:],
                           solutionairflowport[1:],solutionairflowport[1:],solutionvipervizport[1:],solutionvipervizport[1:],
-                          TMLCLIENTPORT[1:],TMLCLIENTPORT[1:],sname,sd,os.environ['GITUSERNAME'],
-                          os.environ['GITREPOURL'],solutionexternalport[1:],chipmain,
-                          solutionairflowport[1:],solutionvipervizport[1:],os.environ['DOCKERUSERNAME'],TMLCLIENTPORT[1:],
-                          externalport[1:],kafkacloudusername,vipervizport[1:],mqttusername,airflowport[1:],containername)       
+                          TMLCLIENTPORT[1:],TMLCLIENTPORT[1:],sname,sd,
+                          solutionexternalport[1:],chipmain,
+                          solutionairflowport[1:],solutionvipervizport[1:],TMLCLIENTPORT[1:],
+                          externalport[1:],vipervizport[1:],airflowport[1:],ebuf,containername)       
     else:
       doparse("/{}/docs/source/operating.rst".format(sname), ["--clientport--;Not Applicable"])
-      dockerrun = """docker run -d -p {}:{} -p {}:{} -p {}:{} \\
+      dockerrun = """docker run -d --net=host -p {}:{} -p {}:{} -p {}:{} \\
           --env TSS=0 \\
           --env SOLUTIONNAME={} \\
           --env SOLUTIONDAG={} \\
-          --env GITUSERNAME={}  \\
-          --env GITREPOURL={} \\
+          --env GITUSERNAME=<Enter Github Username> \\
+          --env GITPASSWORD='<Enter Github Password>' \\          
+          --env GITREPOURL=<Enter Github Repo URL> \\
           --env SOLUTIONEXTERNALPORT={} \\
           -v /var/run/docker.sock:/var/run/docker.sock:z \\
           -v /your_localmachine/foldername:/rawdata:z \\
           --env CHIP={} \\
           --env SOLUTIONAIRFLOWPORT={} \\
           --env SOLUTIONVIPERVIZPORT={} \\
-          --env DOCKERUSERNAME='{}' \\
+          --env DOCKERUSERNAME='' \\
           --env EXTERNALPORT={} \\
-          --env KAFKACLOUDUSERNAME='{}' \\
+          --env KAFKABROKERHOST=127.0.0.1:9092 \\                    
+          --env KAFKACLOUDUSERNAME='<Enter API key>' \\
+          --env KAFKACLOUDPASSWORD='<Enter API secret>' \\          
+          --env SASLMECHANISM=PLAIN \\                    
           --env VIPERVIZPORT={} \\
-          --env MQTTUSERNAME='{}' \\
+          --env MQTTUSERNAME='' \\
+          --env MQTTPASSWORD='' \\          
           --env AIRFLOWPORT={} \\
-          --env MQTTPASSWORD='<Enter mqtt password>' \\
-          --env KAFKACLOUDPASSWORD='<Enter API secret>' \\
-          --env GITPASSWORD='<Enter Github Password>' \\
-          --env READTHEDOCS='<Enter Readthedocs token>' \\
+          --env READTHEDOCS='<Enter Readthedocs token>' \\{} 
           {}""".format(solutionexternalport[1:],solutionexternalport[1:],
                           solutionairflowport[1:],solutionairflowport[1:],solutionvipervizport[1:],solutionvipervizport[1:],
-                          sname,sd,os.environ['GITUSERNAME'],
-                          os.environ['GITREPOURL'],solutionexternalport[1:],chipmain,
-                          solutionairflowport[1:],solutionvipervizport[1:],os.environ['DOCKERUSERNAME'],
-                          externalport[1:],kafkacloudusername,vipervizport[1:],mqttusername,airflowport[1:],containername)
+                          sname,sd,solutionexternalport[1:],chipmain,
+                          solutionairflowport[1:],solutionvipervizport[1:],
+                          externalport[1:],vipervizport[1:],airflowport[1:],ebuf,containername)
         
    # dockerrun = re.escape(dockerrun) 
     v=subprocess.call(["sed", "-i", "-e",  "s/--dockerrun--/{}/g".format(dockerrun), "/{}/docs/source/operating.rst".format(sname)])
@@ -703,7 +832,11 @@ def generatedoc(**context):
     step9embedding=''
     step9vectorsize='' 
     if pgptcontainername != None:
-        privategptrun = "docker run -d -p {}:{} --net=host --gpus all --env PORT={} --env GPU=1 --env COLLECTION={} --env WEB_CONCURRENCY={} --env CUDA_VISIBLE_DEVICES={} {}".format(pgptport[1:],pgptport[1:],pgptport[1:],pcollection,pconcurrency[1:],pcuda[1:],pgptcontainername)
+        if os.environ['TSS'] == "1":
+           privategptrun = "docker run -d -p {}:{} --net=host --gpus all -v /var/run/docker.sock:/var/run/docker.sock:z --env PORT={} --env TSS=1 --env GPU=1 --env COLLECTION={} --env WEB_CONCURRENCY={} --env CUDA_VISIBLE_DEVICES={} --env TOKENIZERS_PARALLELISM=false --env temperature={} --env vectorsearchtype=\"{}\" --env contextwindowsize={} --env vectordimension={} {}".format(pgptport[1:],pgptport[1:],pgptport[1:],pcollection,pconcurrency[1:],pcuda[1:],ptemperature[1:], pvectorsearchtype, pcontextwindowsize[1:], pvectordimension[1:],pgptcontainername)
+        else:
+           privategptrun = "docker run -d -p {}:{} --net=host --gpus all -v /var/run/docker.sock:/var/run/docker.sock:z --env PORT={} --env TSS=0 --env GPU=1 --env COLLECTION={} --env WEB_CONCURRENCY={} --env CUDA_VISIBLE_DEVICES={} --env TOKENIZERS_PARALLELISM=false --env temperature={} --env vectorsearchtype=\"{}\" --env contextwindowsize={} --env vectordimension={} {}".format(pgptport[1:],pgptport[1:],pgptport[1:],pcollection,pconcurrency[1:],pcuda[1:],ptemperature[1:], pvectorsearchtype, pcontextwindowsize[1:], pvectordimension[1:],pgptcontainername)
+         
         step9llmmodel='Refer to: https://tml.readthedocs.io/en/latest/genai.html'
         step9embedding='Refer to: https://tml.readthedocs.io/en/latest/genai.html'
         step9vectorsize='Refer to: https://tml.readthedocs.io/en/latest/genai.html'
@@ -915,6 +1048,8 @@ def generatedoc(**context):
      
     step1solutiontitle=stitle
     step1description=sdesc
+    with open("/tmux/cname.txt", "r") as f:
+      containername=f.read()
 
     if len(CLIENTPORT) > 1:
       kcmd2=tsslogging.genkubeyaml(sname,containername,TMLCLIENTPORT[1:],solutionairflowport[1:],solutionvipervizport[1:],solutionexternalport[1:],
@@ -926,7 +1061,10 @@ def generatedoc(**context):
                        step9docfolder,step9docfolderingestinterval[1:],step9useidentifierinprompt[1:],step5processlogic,
                        step5independentvariables,step9searchterms,step9streamall[1:],step9temperature[1:],step9vectorsearchtype,
                        step9llmmodel,step9embedding,step9vectorsize,step4cmaxrows,step4crawdatatopic,step4csearchterms,step4crememberpastwindows[1:],
-                       step4cpatternscorethreshold[1:],step4crtmsstream,projectname)
+                       step4cpatternwindowthreshold[1:],step4crtmsstream,projectname,step4crtmsscorethreshold[1:],step4cattackscorethreshold[1:],
+                       step4cpatternscorethreshold[1:],step4clocalsearchtermfolder,step4clocalsearchtermfolderinterval[1:],step4crtmsfoldername,
+                       step3localfileinputfile,step3localfiledocfolder,step4crtmsmaxwindows[1:],step9pcontextwindowsize[1:],
+                       step9pgptcontainername,step9pgpthost,step9pgptport[1:],step9vectordimension[1:])
     else: 
       kcmd2=tsslogging.genkubeyamlnoext(sname,containername,TMLCLIENTPORT[1:],solutionairflowport[1:],solutionvipervizport[1:],solutionexternalport[1:],
                        sd,os.environ['GITUSERNAME'],os.environ['GITREPOURL'],chipmain,os.environ['DOCKERUSERNAME'],
@@ -937,7 +1075,10 @@ def generatedoc(**context):
                        step9docfolder,step9docfolderingestinterval[1:],step9useidentifierinprompt[1:],step5processlogic,
                        step5independentvariables,step9searchterms,step9streamall[1:],step9temperature[1:],step9vectorsearchtype,
                        step9llmmodel,step9embedding,step9vectorsize,step4cmaxrows,step4crawdatatopic,step4csearchterms,step4crememberpastwindows[1:],
-                       step4cpatternscorethreshold[1:],step4crtmsstream,projectname)
+                       step4cpatternwindowthreshold[1:],step4crtmsstream,projectname,step4crtmsscorethreshold[1:],step4cattackscorethreshold[1:],
+                       step4cpatternscorethreshold[1:],step4clocalsearchtermfolder,step4clocalsearchtermfolderinterval[1:],step4crtmsfoldername,
+                       step3localfileinputfile,step3localfiledocfolder,step4crtmsmaxwindows[1:],step9pcontextwindowsize[1:],
+                       step9pgptcontainername,step9pgpthost,step9pgptport[1:],step9vectordimension[1:])
 
     doparse("/{}/docs/source/kube.rst".format(sname), ["--solutionnamecode--;{}".format(kcmd2)])
 
