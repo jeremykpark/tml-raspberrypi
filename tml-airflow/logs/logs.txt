@@ -12377,3 +12377,4 @@ origin	https://<personal access token hidden>@github.com/JeremyKPark/tml-raspber
 [INFO 2025-04-03_17:26:55] Preprocessing DAG in tml_system_step_4_kafka_preprocess_dag-cybersecuritywithprivategpt-534a.py
 [INFO 2025-04-03_17:26:56] Visualization DAG in tml_system_step_7_kafka_visualization_dag-cybersecuritywithprivategpt-534a.py
 [INFO 2025-04-03_17:41:42] Deleting topic cisco-network-mainstream in tml_system_step_2_kafka_createtopic_dag-cybersecuritywithprivategpt-534a.py
+[INFO 2025-04-03_17:41:43] Deleting topic cisco-network-preprocess in tml_system_step_2_kafka_createtopic_dag-cybersecuritywithprivategpt-534a.py
