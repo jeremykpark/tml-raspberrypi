@@ -40,7 +40,7 @@ default_args = {
   'preprocesstypes' : 'min,max,trend,anomprob,variance,avg', # <<< **** MAIN PREPROCESS TYPES CHNAGE AS NEEDED refer to https://tml-readthedocs.readthedocs.io/en/latest/
   'pathtotmlattrs' : 'oem=n/a,lat=n/a,long=n/a,location=n/a,identifier=n/a', # Change as needed     
   'jsoncriteria' : 'uid=Hostname,filter:allrecords~\
-subtopics=Hostname,Hostname,Hostname~\
+subtopics=Hostname,Hostname,Hostname,Hostname~\
 values=Dst IP,Dst port,Protocol,Log subtype~\
 identifiers=Dst IP,Dst port,Protocol,Log subtype~\
 datetime=Time~\
