@@ -55,7 +55,10 @@ default_args = {
  'searchterms': '172.16.--identifier--,authentication failure',
  'streamall': '1',
  'temperature' : '0.1', # This value ranges between 0 and 1, it controls how conservative LLM model will be, if 0 very very, if 1 it will hallucinate
- 'vectorsearchtype' : 'Manhattan', # this is for the Qdrant Search algorithm.  it can be: Cosine, Euclidean, Dot, or Manhattan 
+ 'vectorsearchtype' : 'Manhattan', # this is for the Qdrant Search algorithm.  it can be: Cosine, Euclidean, Dot, or Manhattan,
+ 'contextwindowsize': '8192', # Size of the context window.  This controls the number of tokens to process by LLM model
+ 'vectordimension': '768',
+ 'mitrejson': '/rawdata/mitre.json'
 }
 
 ############################################################### DO NOT MODIFY BELOW ####################################################
